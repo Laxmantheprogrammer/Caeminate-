@@ -1,0 +1,51 @@
+#include "generator.hh"
+#include "SimulationConfig.hh"
+#include "G4ParticleTable.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4ThreeVector.hh"
+PrimaryGenerator::PrimaryGenerator()
+{
+    fGPS = new G4GeneralParticleSource();
+
+    auto& beam = SimulationConfig::Instance().Beam();
+
+    G4String particle = beam["particle"];
+    G4double energy = beam["energy_keV"].get<double>() * MeV;
+
+    auto pos = beam["position_mm"];
+    auto dir = beam["direction"];
+
+    // Particle
+    fGPS->SetParticleDefinition(
+        G4ParticleTable::GetParticleTable()->FindParticle(particle)
+    );
+
+    // Energy
+    fGPS->GetCurrentSource()->GetEneDist()
+        ->SetMonoEnergy(energy);
+
+    // Position
+    fGPS->GetCurrentSource()->GetPosDist()
+        ->SetCentreCoords(G4ThreeVector(
+            pos[0].get<double>() * mm,
+            pos[1].get<double>() * mm,
+            pos[2].get<double>() * mm
+        ));
+
+    // Direction
+    fGPS->GetCurrentSource()->GetAngDist()
+        ->SetParticleMomentumDirection(G4ThreeVector(
+            dir[0].get<double>(),
+            dir[1].get<double>(),
+            dir[2].get<double>()
+        ));
+}
+PrimaryGenerator::~PrimaryGenerator()
+{
+    delete fGPS;
+}
+
+void PrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
+{
+    fGPS->GeneratePrimaryVertex(anEvent);
+}
