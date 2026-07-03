@@ -1,0 +1,3 @@
+This shitty thing is just a formality tbh.
+I did every thing with AI , becuase due to some Science Fair at the school I couldn't really learn C++ to the required level.
+This is just some basic thing , I generate randomly many configurations of materials , store them into a json file, then simulate those configs and their reaction with different types of radiations at different energies using GEANT4, and convert the produced .root files into .csv files and then train a shitty ML model which my friend convinced Grok to make.
