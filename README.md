@@ -1,4 +1,6 @@
 This shitty thing is just a formality tbh.
 I did every thing with AI , becuase due to some Science Fair at the school I couldn't really learn C++ to the required level.
+I am really really sorry for all the horrible code you are going to see.
+I am just a student and I don't really know how to do these kinds of things , so please just consider me a beginner whenever you see a horrible section of code.
 Here I am using I and AI kind of interchangablely so use some common sense.
 This is just some basic thing , I generate randomly many configurations of materials which is done in the genmat.py file , store them into a the config.json file which is created inside the build folder once you run the genmat.py file, then simulate those configs and their reaction with different types of radiations at different energies using GEANT4 using all of the other files in this project, then GEANT4 stores all the data inside a .root file , giving one file to one simulated config , which are then stored inside the output folder and the I store the data of the produced .root files into a .csv file using the root2csv.py file and then train a shitty ML model which my friend convinced Grok to make.

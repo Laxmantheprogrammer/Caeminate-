@@ -40,6 +40,7 @@ RunAction::RunAction()
     man->CreateNtupleDColumn("X_mm");
     man->CreateNtupleDColumn("Y_mm");
     man->CreateNtupleDColumn("Z_mm");
+    man->FinishNtuple(); 
 
     // =====================
     // Metadata tree
@@ -132,29 +133,9 @@ void RunAction::BeginOfRunAction(const G4Run *)
     man->AddNtupleRow(1);
 }
 
-// void RunAction::EndOfRunAction(const G4Run*)
-// {
-//     G4cout << "EndOfRunAction called" << G4endl;
-//     auto* man = G4RootAnalysisManager::Instance();
-
-//     man->Write();
-//     man->CloseFile();
-// }
 void RunAction::EndOfRunAction(const G4Run *)
 {
     auto *man = G4RootAnalysisManager::Instance();
-    
-
-    G4cout << "EndOfRunAction called" << G4endl;
-    G4cout << "Writing..." << G4endl;
-    G4cout << "Total Energy Deposit = "
-       << fTotalEnergyDeposit
-       << " MeV" << G4endl;
     man->Write();
-
-    G4cout << "Closing..." << G4endl;
-
     man->CloseFile();
-
-    G4cout << "Done." << G4endl;
 }

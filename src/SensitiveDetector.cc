@@ -23,7 +23,7 @@ SensitiveDetector::~SensitiveDetector()
 
 void SensitiveDetector::Initialize(G4HCofThisEvent *)
 {
-    G4cout << "SensitiveDetector Initialized for event" << G4endl;
+
 }
 
 void SensitiveDetector::EndOfEvent(G4HCofThisEvent *)
@@ -56,7 +56,6 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
     
     G4double kineticEnergy = track->GetKineticEnergy() / MeV;
     G4double energyDeposit = aStep->GetTotalEnergyDeposit() / MeV;
-    G4cout << "Edep = " << energyDeposit << " MeV" << G4endl;
     RunAction::GetInstance()->AddEnergyDeposit(energyDeposit);
 
     man->FillNtupleIColumn(0, runID);
@@ -72,12 +71,5 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
     man->FillNtupleDColumn(6, posPhoton.x() / mm);
     man->FillNtupleDColumn(7, posPhoton.y() / mm);
     man->FillNtupleDColumn(8, posPhoton.z() / mm);
-
-    G4cout << particleName
-           << " hit detector "
-           << copyNo
-           << " at "
-           << posDetector
-           << G4endl;
            return true;
 }

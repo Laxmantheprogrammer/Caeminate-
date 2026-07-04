@@ -3,42 +3,37 @@
 #include "G4ParticleTable.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
-PrimaryGenerator::PrimaryGenerator()
+PrimaryGenerator::PrimaryGenerator(DetectorConstruction *detector)
+    : fDetector(detector)
 {
     fGPS = new G4GeneralParticleSource();
 
-    auto& beam = SimulationConfig::Instance().Beam();
+    auto &beam = SimulationConfig::Instance().Beam();
 
     G4String particle = beam["particle"];
     G4double energy = beam["energy_keV"].get<double>() * MeV;
 
-    auto pos = beam["position_mm"];
+    G4double beamZ = fDetector->GetShieldFrontFace() - 1.0 * mm;
     auto dir = beam["direction"];
 
     // Particle
     fGPS->SetParticleDefinition(
-        G4ParticleTable::GetParticleTable()->FindParticle(particle)
-    );
+        G4ParticleTable::GetParticleTable()->FindParticle(particle));
 
     // Energy
-    fGPS->GetCurrentSource()->GetEneDist()
-        ->SetMonoEnergy(energy);
+    fGPS->GetCurrentSource()->GetEneDist()->SetMonoEnergy(energy);
 
     // Position
-    fGPS->GetCurrentSource()->GetPosDist()
-        ->SetCentreCoords(G4ThreeVector(
-            pos[0].get<double>() * mm,
-            pos[1].get<double>() * mm,
-            pos[2].get<double>() * mm
-        ));
+    fGPS->GetCurrentSource()->GetPosDist()->SetCentreCoords(G4ThreeVector(
+        0.0,
+        0.0,
+        beamZ));
 
     // Direction
-    fGPS->GetCurrentSource()->GetAngDist()
-        ->SetParticleMomentumDirection(G4ThreeVector(
-            dir[0].get<double>(),
-            dir[1].get<double>(),
-            dir[2].get<double>()
-        ));
+    fGPS->GetCurrentSource()->GetAngDist()->SetParticleMomentumDirection(G4ThreeVector(
+        dir[0].get<double>(),
+        dir[1].get<double>(),
+        dir[2].get<double>()));
 }
 PrimaryGenerator::~PrimaryGenerator()
 {

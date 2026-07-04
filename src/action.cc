@@ -14,7 +14,7 @@ ActionInitialization::~ActionInitialization() {}
 
 void ActionInitialization::Build() const
 {
-    PrimaryGenerator* generator = new PrimaryGenerator();
+    PrimaryGenerator* generator = new PrimaryGenerator(fDetector);
     SetUserAction(generator);
 
     RunAction* runAction = new RunAction();

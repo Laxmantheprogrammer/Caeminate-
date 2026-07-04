@@ -68,55 +68,33 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
     // ---------------- MATERIAL SYSTEM ----------------
 
-    G4Material *SiO2 = nullptr;
-    G4Material *H2O = nullptr;
+    // ---------------- MATERIAL SYSTEM ----------------
 
-    G4Material *Aerogel =
-        nullptr;
+    G4Material *SiO2 = G4Material::GetMaterial("SiO2");
+    if (!SiO2)
+    {
+        SiO2 = new G4Material("SiO2", 2.201 * g / cm3, 2);
+        SiO2->AddElement(nist->FindOrBuildElement("Si"), 1);
+        SiO2->AddElement(nist->FindOrBuildElement("O"), 2);
+    }
 
+    G4Material *H2O = G4Material::GetMaterial("H2O");
+    if (!H2O)
+    {
+        H2O = new G4Material("H2O", 1.0 * g / cm3, 2);
+        H2O->AddElement(nist->FindOrBuildElement("H"), 2);
+        H2O->AddElement(nist->FindOrBuildElement("O"), 1);
+    }
+
+    G4Material *Aerogel = G4Material::GetMaterial("Aerogel");
     if (!Aerogel)
     {
-        SiO2 = new G4Material(
-            "SiO2",
-            2.201 * g / cm3,
-            2);
+        G4Element *C = nist->FindOrBuildElement("C");
 
-        SiO2->AddElement(
-            nist->FindOrBuildElement("Si"), 1);
-
-        SiO2->AddElement(
-            nist->FindOrBuildElement("O"), 2);
-
-        H2O = new G4Material(
-            "H2O",
-            1.0 * g / cm3,
-            2);
-
-        H2O->AddElement(
-            nist->FindOrBuildElement("H"), 2);
-
-        H2O->AddElement(
-            nist->FindOrBuildElement("O"), 1);
-
-        G4Element *C =
-            nist->FindOrBuildElement("C");
-
-        Aerogel = new G4Material(
-            "Aerogel",
-            0.2 * g / cm3,
-            3);
-
-        Aerogel->AddMaterial(
-            SiO2,
-            62.5 * perCent);
-
-        Aerogel->AddMaterial(
-            H2O,
-            37.4 * perCent);
-
-        Aerogel->AddElement(
-            C,
-            0.1 * perCent);
+        Aerogel = new G4Material("Aerogel", 0.2 * g / cm3, 3);
+        Aerogel->AddMaterial(SiO2, 62.5 * perCent);
+        Aerogel->AddMaterial(H2O, 37.4 * perCent);
+        Aerogel->AddElement(C, 0.1 * perCent);
     }
 
     // ---------------- OPTICAL PROPERTIES ----------------
@@ -154,6 +132,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
     // ---------------- RADIATOR ----------------
     G4double currentZ =
         (0.25 * m) - (totalThickness / 2);
+    fShieldFrontFace = currentZ;
 
     for (const auto &layer : layers)
     {
@@ -211,11 +190,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
             worldMat,
             "DetectorLV");
 
-    G4cout
-        << "Detector logical volume = "
-        << logicDetector
-        << G4endl;
-
     for (int i = 0; i < 100; i++)
     {
         for (int j = 0; j < 100; j++)
@@ -253,10 +227,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
 void DetectorConstruction::ConstructSDandField()
 {
-    G4cout
-        << "ConstructSDandField called"
-        << G4endl;
-
     auto *sens =
         new SensitiveDetector(
             "SensitiveDetector");

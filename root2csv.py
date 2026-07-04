@@ -22,12 +22,14 @@ for filename in os.listdir(root_folder):
     for key in file.keys():
 
         obj = file[key]
+        print(f"Tree: {key}")
 
         if not hasattr(obj, "arrays"):
             continue
 
         try:
             df = obj.arrays(library="pd")
+            print(df.columns.tolist())
 
             if df is None or len(df) == 0:
                 print(f"   Skipped empty tree: {key}")
