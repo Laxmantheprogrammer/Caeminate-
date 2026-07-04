@@ -1,3 +1,0 @@
-/home/laxman/maybe_caeminate/build/CMakeFiles/maybe_caeminate.dir
-/home/laxman/maybe_caeminate/build/CMakeFiles/edit_cache.dir
-/home/laxman/maybe_caeminate/build/CMakeFiles/rebuild_cache.dir

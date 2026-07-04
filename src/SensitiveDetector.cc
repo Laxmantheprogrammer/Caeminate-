@@ -23,7 +23,6 @@ SensitiveDetector::~SensitiveDetector()
 
 void SensitiveDetector::Initialize(G4HCofThisEvent *)
 {
-
 }
 
 void SensitiveDetector::EndOfEvent(G4HCofThisEvent *)
@@ -50,10 +49,10 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
 
     auto *man = G4RootAnalysisManager::Instance();
     G4int runID = G4RunManager::GetRunManager()->GetCurrentRun()->GetRunID();
-    
+
     G4int trackID = track->GetTrackID();
     G4int parentID = track->GetParentID();
-    
+
     G4double kineticEnergy = track->GetKineticEnergy() / MeV;
     G4double energyDeposit = aStep->GetTotalEnergyDeposit() / MeV;
     RunAction::GetInstance()->AddEnergyDeposit(energyDeposit);
@@ -71,5 +70,6 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
     man->FillNtupleDColumn(6, posPhoton.x() / mm);
     man->FillNtupleDColumn(7, posPhoton.y() / mm);
     man->FillNtupleDColumn(8, posPhoton.z() / mm);
-           return true;
+    man->AddNtupleRow();
+    return true;
 }

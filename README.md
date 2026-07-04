@@ -1,6 +1,121 @@
-This shitty thing is just a formality tbh.
-I did every thing with AI , becuase due to some Science Fair at the school I couldn't really learn C++ to the required level.
-I am really really sorry for all the horrible code you are going to see.
-I am just a student and I don't really know how to do these kinds of things , so please just consider me a beginner whenever you see a horrible section of code.
-Here I am using I and AI kind of interchangablely so use some common sense.
-This is just some basic thing , I generate randomly many configurations of materials which is done in the genmat.py file , store them into a the config.json file which is created inside the build folder once you run the genmat.py file, then simulate those configs and their reaction with different types of radiations at different energies using GEANT4 using all of the other files in this project, then GEANT4 stores all the data inside a .root file , giving one file to one simulated config , which are then stored inside the output folder and the I store the data of the produced .root files into a .csv file using the root2csv.py file and then train a shitty ML model which my friend convinced Grok to make.
+# Caeminate v01
+
+## What is Caeminate?
+
+This project is called **Caeminate**. The inspiration for the name comes from the Latin word **Caelus**, meaning *the sky*, and the English word **Laminate**, meaning something composed of multiple layers.
+
+The goal of this project is to use **Monte Carlo simulation methods**, which use probabilistic sampling to simulate the interactions of different types of radiation with different materials. Since these interactions are inherently probabilistic, Monte Carlo methods are well suited for modelling them. The long-term objective is to use the generated data to discover materials that can shield specific types of radiation—such as neutrons, protons, and gamma rays—more effectively than the materials currently used in rockets and satellites.
+
+## Motivation
+
+I chose this idea for two main reasons.
+
+First, radiation shielding for astronauts and spacecraft electronics is still an **active area of research**. We still do not know the optimal materials for protecting against different kinds of radiation, and this remains one of the factors limiting how long astronauts and electronics can safely operate in space. This is the first research problem I have worked on.
+
+Second, when I first heard about this problem, I felt that it was something within my reach—something I could realistically attempt to work on myself (even though I did not do 99% of the work myself).
+
+## Caemite
+
+The theoretical end goal of Caeminate was **Caemite**. Unlike a laminate, Caemite would (theoretically) be a single material capable of blocking all forms of radiation almost perfectly. I now know that this is not possible with our current understanding of physics, but it was still the theoretical goal that inspired the project.
+
+## `maybe_caeminate.cc`
+
+The main file is called `maybe_caeminate.cc` because, when I first started this project, I did not know whether I could build something like this. So, instead of naming it something like `caeminate_v1`, I called it `maybe_caeminate`.
+
+## About this version
+
+I did almost everything with AI because, due to the science fair at my school where I planned to present this project, I did not have enough time to learn C++ to the level that would have been required.
+
+If you see variables that are created but never used, files that could have been much smaller, or code that is far from optimized, just remember that this is the very first version of the project. At the time, I did not know C++, ROOT, Linux, Git, CMake, Python, or machine learning—essentially all of the technologies used here.
+
+Just consider me a beginner and this project the roughest draft you have ever seen.
+
+There are many limitations in this code, probably more than I can even imagine, but isn't that what a v01 is supposed to be?
+
+I never intended this version to be perfect, and I don't expect any version to be , but I do expect to add new things and understand them better in future versions.
+
+Honestly, I do not understand most of the code in this project in depth. If you ask me what a particular section of the code does, I will most of the time not be able to answer. However, I do have a general idea of how the project works, and in future versions I intend to write the code myself, using only as much AI assistance as actually makes sense.
+
+## What each file does
+
+I don't know what each file **does**. Now what I do understand is:
+
+`include/` contains the C++ header files.
+`src/` contains the C++ source files.
+
+`DetectorConstruction.cc` and `DetectorConstruction.hh` define the simulation geometry, including the world volume, materials, and logical volumes.
+
+`physics.cc` and `physics.hh` define the Geant4 physics list, allowing the user to choose which physical processes and interactions are included in the simulation.
+
+`SensitiveDetector.cc` and `SensitiveDetector.hh` implement the sensitive detectors used in the simulation. They collect the relevant simulation data and write it to ROOT output files.
+
+`action.cc`, `action.hh`, `run.cc`, and `run.hh` implement the Geant4 user actions, including particle generation, run management, and other simulation callbacks.
+
+There are other files also but I have no idea what they do.
+
+## How it works
+
+I don't know how it **works**. But I do know some parts of it.
+
+This version implements a basic data generation pipeline.
+
+First, I randomly generate many different material configurations using `genmat.py`. Running this script creates a `config.json` file inside the `build` directory.
+
+These generated configurations are then simulated using Geant4, which models their interactions with different types of radiation at different energies. Geant4 produces one `.root` output file for each simulated configuration, and these files are stored inside the `output` folder.
+
+After that, `root2csv.py` converts the generated `.root` files into a single `.csv` dataset.
+
+An ML model (created by Grok after my friend convinced it to make one) is then trained using that dataset.
+
+**This repository only generates the dataset and does not train the machine learning model.**
+
+## Usage
+
+To use this project, follow these steps (or at least, this is how I use it):
+
+0. Configure Geant4 and ROOT on your machine.
+1. Go to the `build` directory and run:
+
+   * `cmake ..`
+   * `make -j$(nproc)`
+2. Edit `genmat.py` by setting the number of configurations and modifying any other parameters according to your needs.
+3. Run:
+
+   * `python3 genmat.py`
+4. Verify that the generated configuration files are present inside the `build` folder.
+5. In WSL or a native Linux terminal, navigate to the `build` directory if you are not already there.
+6. Run:
+
+   * `./maybe_caeminate`
+7. After the simulation finishes, the generated `.root` files should appear inside the `output` folder.
+8. Return to the `maybe_caeminate` directory and run:
+
+   * `python3 root2csv.py`
+
+This will generate the final CSV dataset.
+
+## Pipeline
+
+For all my visual learners:
+
+Generate material configurations using `genmat.py`
+        │
+        ▼
+Get `config.json` inside the `build` directory
+        │
+        ▼
+Simulate all generated configurations using `./maybe_caeminate` command inside build
+        │
+        ▼
+Get the ROOT file for each simulated configuration inside the `output` folder
+        │
+        ▼
+Run `root2csv.py` to convert the ROOT files into a CSV dataset
+        │
+        ▼
+Get `data.csv`
+        │
+        ▼
+Use the generated dataset to train a machine learning model, if you wish
+
+Future version will improve as I add better ML , physics , programming etc.
