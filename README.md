@@ -119,3 +119,8 @@ Get `data.csv`
 Use the generated dataset to train a machine learning model, if you wish
 
 Future version will improve as I add better ML , physics , programming etc.
+
+## Credit
+ChatGPT
+Me , Laxman
+My friend Ayush , username: nurseryworker
