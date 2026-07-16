@@ -111,7 +111,6 @@ void RunAction::BeginOfRunAction(const G4Run *)
     {
         layerStr += layers[i]["material"].get<std::string>();
         thickStr += std::to_string(layers[i]["thickness_mm"].get<double>());
-        densStr += std::to_string(layers[i]["density"].get<double>());
 
         if (i != layers.size() - 1)
         {

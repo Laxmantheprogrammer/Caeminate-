@@ -7,7 +7,7 @@ import os
 # ============================================================
 
 # Number of configurations to generate
-NUM_CONFIGS = 10
+NUM_CONFIGS = 5
 
 # Maximum number of layers in a shield
 MAX_LAYERS = 5
@@ -104,7 +104,7 @@ def generate_config():
 
         layer = generate_layer()
 
-        mass = layer["thickness_mm"] * layer["density"]
+        mass = (layer["thickness_mm"] *MATERIALS[layer["material"]]["density"])
 
         if total_mass + mass > MAX_MASS:
             break
@@ -115,16 +115,9 @@ def generate_config():
 
         layers = layers[:MAX_LAYERS]
 
-    while len(layers) < MAX_LAYERS:
-        layers.append({
-            "material": "None",
-            "thickness_mm": 0.0,
-        })
-
     return {
 
         "layers": layers,
-
         "beam": {
 
             "particle": random.choice(PARTICLES),
