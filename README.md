@@ -94,28 +94,9 @@ To use this project, follow these steps (or at least, this is how I use it):
 
 This will generate the final CSV dataset.
 
-## Pipeline
-
-For all my visual learners:
-
-Generate material configurations using `genmat.py`
-        │
-        ▼
-Get `config.json` inside the `build` directory
-        │
-        ▼
-Simulate all generated configurations using `./maybe_caeminate` command inside build
-        │
-        ▼
-Get the ROOT file for each simulated configuration inside the `output` folder
-        │
-        ▼
-Run `root2csv.py` to convert the ROOT files into a CSV dataset
-        │
-        ▼
-Get `data.csv`
-        │
-        ▼
-Use the generated dataset to train a machine learning model, if you wish
-
 Future version will improve as I add better ML , physics , programming etc.
+
+## Credit
+ChatGPT ,
+Me Laxman ,
+My friend Ayush , username: nurseryworker
