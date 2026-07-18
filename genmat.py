@@ -6,8 +6,11 @@ import os
 # USER SETTINGS
 # ============================================================
 
-# Number of configurations to generate
-NUM_CONFIGS = 5
+# Number of output files
+NUM_FILES = 1
+
+# Configurations per file
+CONFIGS_PER_FILE = 1
 
 # Maximum number of layers in a shield
 MAX_LAYERS = 5
@@ -28,21 +31,61 @@ ENERGY_RESOLUTION = 0.5
 # Number of events per simulation
 NUM_EVENTS = 10000
 
-# Output file
+# Output file prefix
 OUTPUT_FILE = "../output/Output"
+
 BEAM_POSITION = [-50, 0, 0]
 BEAM_DIRECTION = [0, 0, 1]
 
 # Materials available for shielding
 MATERIALS = {
-    "G4_Pb": {
-        "density": 11.34
+    "G4_AIR": {
+        "density": 0.001225
+    },
+    "G4_WATER": {
+        "density": 1.000
+    },
+    "G4_POLYETHYLENE": {
+        "density": 0.94
     },
     "G4_Al": {
         "density": 2.70
     },
+    "G4_B": {
+        "density": 2.34
+    },
+    "G4_Be": {
+        "density": 1.85
+    },
+    "G4_C": {
+        "density": 2.267
+    },
+    "G4_Cu": {
+        "density": 8.96
+    },
     "G4_Fe": {
         "density": 7.87
+    },
+    "G4_Ag": {
+        "density": 10.49
+    },
+    "G4_Au": {
+        "density": 19.32
+    },
+    "G4_Pb": {
+        "density": 11.34
+    },
+    "G4_Ta": {
+        "density": 16.69
+    },
+    "G4_Ti": {
+        "density": 4.50
+    },
+    "G4_U": {
+        "density": 18.95
+    },
+    "G4_W": {
+        "density": 19.25
     }
 }
 
@@ -53,7 +96,17 @@ PARTICLES = [
     "e+",
     "proton",
     "neutron",
-    "alpha"
+    "alpha",
+    "mu-",
+    "mu+",
+    "pi-",
+    "pi+",
+    "kaon-",
+    "kaon+",
+    "deuteron",
+    "triton",
+    "He3",
+    "GenericIon"
 ]
 
 # ============================================================
@@ -82,8 +135,6 @@ def generate_layer():
 
     material = random.choice(list(MATERIALS.keys()))
 
-    density = MATERIALS[material]["density"]
-
     thickness = random_thickness()
 
     return {
@@ -104,7 +155,10 @@ def generate_config():
 
         layer = generate_layer()
 
-        mass = (layer["thickness_mm"] *MATERIALS[layer["material"]]["density"])
+        mass = (
+            layer["thickness_mm"]
+            * MATERIALS[layer["material"]]["density"]
+        )
 
         if total_mass + mass > MAX_MASS:
             break
@@ -113,11 +167,10 @@ def generate_config():
 
         layers.append(layer)
 
-        layers = layers[:MAX_LAYERS]
-
     return {
 
         "layers": layers,
+
         "beam": {
 
             "particle": random.choice(PARTICLES),
@@ -151,12 +204,35 @@ build_dir = os.path.join(script_dir, "build")
 
 os.makedirs(build_dir, exist_ok=True)
 
-configs = [generate_config() for _ in range(NUM_CONFIGS)]
+# Stores every configuration generated so far
+unique_configs = set()
 
-config_path = os.path.join(build_dir, "config.json")
+for file_num in range(NUM_FILES):
 
-with open(config_path, "w") as f:
+    configs = []
 
-    json.dump(configs, f, indent=2)
+    while len(configs) < CONFIGS_PER_FILE:
 
-print(f"Generated {NUM_CONFIGS} configurations in {config_path}")
+        config = generate_config()
+
+        # Convert to a deterministic string for uniqueness checking
+        key = json.dumps(config, sort_keys=True)
+
+        if key in unique_configs:
+            continue
+
+        unique_configs.add(key)
+        configs.append(config)
+
+    config_path = os.path.join(
+        build_dir,
+        # f"config_{file_num}.json" #COME HERE BRUH COME HERE
+        f"config.json"
+    )
+
+    with open(config_path, "w") as f:
+        json.dump(configs, f, indent=2)
+
+print(
+    f"\nDone! Generated {NUM_FILES * CONFIGS_PER_FILE} unique configurations across {NUM_FILES} files."
+)

@@ -110,6 +110,10 @@ def compute_transmission(row):
         if pd.notna(t):
             total_thickness += float(t)
         if pd.notna(d):
+            d = d.strip()
+            if not d:
+                continue
+
             total_density += float(d)
 
     energy = float(row["Energy_keV"]) if pd.notna(row["Energy_keV"]) else 1.0
@@ -117,17 +121,28 @@ def compute_transmission(row):
     # -------------------------
     # NORMALIZED PHYSICS MODEL
     # -------------------------
+    for i in range(1, 6):
+        t = row.get(f"T{i}", 0)
+        d = row.get(f"D{i}", 0)
 
-    thickness_term = total_thickness / 50.0   # normalize scale
-    density_term = total_density / 10.0        # normalize scale
-    energy_term = energy / 5.0
+        if pd.notna(t):
+            total_thickness += float(t)
 
-    alpha = 2.0
+        if pd.notna(d):
+            d = str(d).strip()
+            if not d:
+                continue
+            total_density += float(d)
+        thickness_term = total_thickness / 50.0   # normalize scale
+        density_term = total_density / 10.0        # normalize scale
+        energy_term = energy / 5.0
 
-    exponent = -alpha * (thickness_term * density_term) / energy_term
+        alpha = 2.0
 
-    raw = np.exp(exponent)
-    return 1 / (1 + np.exp(-5 * (raw - 0.5)))
+        exponent = -alpha * (thickness_term * density_term) / energy_term
+
+        raw = np.exp(exponent)
+        return 1 / (1 + np.exp(-5 * (raw - 0.5)))
 
 df_meta["TransmissionFraction"] = df_meta.apply(compute_transmission, axis=1)
 
