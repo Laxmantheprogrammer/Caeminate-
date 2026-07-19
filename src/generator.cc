@@ -11,7 +11,7 @@ PrimaryGenerator::PrimaryGenerator(DetectorConstruction *detector)
     auto &beam = SimulationConfig::Instance().Beam();
 
     G4String particle = beam["particle"];
-    G4double energy = beam["energy_keV"].get<double>() * MeV;
+    G4double energy = beam["energy_keV"].get<double>() * keV;
 
     G4double beamZ = fDetector->GetShieldFrontFace() - 1.0 * mm;
     auto dir = beam["direction"];

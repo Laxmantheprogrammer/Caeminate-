@@ -1,15 +1,15 @@
 import os
 import uproot
 import pandas as pd
-import numpy as np
 
 root_folder = os.path.expanduser("~/maybe_caeminate/output")
 project_folder = os.path.dirname(root_folder)
 
-csv_folder = os.path.join(project_folder, "")
+csv_folder = project_folder
 os.makedirs(csv_folder, exist_ok=True)
 
 metadata_list = []
+summary_list = []
 
 print("\nStarting ML-v0 extraction...\n")
 
@@ -36,23 +36,22 @@ for filename in os.listdir(root_folder):
             arrays = file[key].arrays(library="np")
             df = pd.DataFrame(arrays)
 
-            if df is None or len(df) == 0:
+            if df.empty:
                 print(f"   Skipped empty tree: {tree_name}")
                 continue
 
             df["SourceFile"] = filename
-            df["Tree"] = tree_name
 
-            # ---------------------------
-            # ONLY KEEP METADATA
-            # ---------------------------
-
-            if "Metadata" in tree_name:
+            if tree_name == "Metadata":
                 metadata_list.append(df)
                 print(f"   Loaded Metadata ({len(df)})")
 
+            elif tree_name == "Summary":
+                summary_list.append(df)
+                print(f"   Loaded Summary ({len(df)})")
+
             elif tree_name == "Hits":
-                print(f"   Ignored Hits")
+                print("   Ignored Hits")
 
             else:
                 print(f"   Ignored tree: {tree_name}")
@@ -64,10 +63,24 @@ for filename in os.listdir(root_folder):
 # BUILD DATASET
 # ---------------------------
 
-df_meta = pd.concat(metadata_list, ignore_index=True)
+if not metadata_list:
+    raise RuntimeError("No Metadata trees found.")
 
+df_meta = pd.concat(metadata_list, ignore_index=True)
 df_meta["RunID"] = pd.to_numeric(df_meta["RunID"], errors="coerce")
 df_meta = df_meta.drop_duplicates("RunID")
+
+if summary_list:
+    df_summary = pd.concat(summary_list, ignore_index=True)
+    df_summary["RunID"] = pd.to_numeric(df_summary["RunID"], errors="coerce")
+    df_summary = df_summary.drop_duplicates("RunID")
+
+    df_meta = df_meta.merge(
+        df_summary,
+        on="RunID",
+        how="left",
+        suffixes=("", "_summary")
+    )
 
 # ---------------------------
 # STACK FLATTENING
@@ -75,9 +88,10 @@ df_meta = df_meta.drop_duplicates("RunID")
 
 def split_stack(s, n=5):
     if pd.isna(s):
-        return [None]*n
+        return [None] * n
+
     parts = str(s).split("|")
-    return (parts + [None]*n)[:n]
+    return (parts + [None] * n)[:n]
 
 if "LayerStack" in df_meta.columns:
     layers = df_meta["LayerStack"].apply(split_stack).apply(pd.Series)
@@ -93,58 +107,6 @@ if "DensityStack" in df_meta.columns:
     dens = df_meta["DensityStack"].apply(split_stack).apply(pd.Series)
     dens.columns = [f"D{i+1}" for i in range(5)]
     df_meta = pd.concat([df_meta, dens], axis=1)
-
-# ---------------------------
-# 🔥 NEW: TRANSMISSION MODEL
-# ---------------------------
-
-def compute_transmission(row):
-
-    total_thickness = 0.0
-    total_density = 0.0
-
-    for i in range(1, 6):
-        t = row.get(f"T{i}", 0)
-        d = row.get(f"D{i}", 0)
-
-        if pd.notna(t):
-            total_thickness += float(t)
-        if pd.notna(d):
-            d = d.strip()
-            if not d:
-                continue
-
-            total_density += float(d)
-
-    energy = float(row["Energy_keV"]) if pd.notna(row["Energy_keV"]) else 1.0
-
-    # -------------------------
-    # NORMALIZED PHYSICS MODEL
-    # -------------------------
-    for i in range(1, 6):
-        t = row.get(f"T{i}", 0)
-        d = row.get(f"D{i}", 0)
-
-        if pd.notna(t):
-            total_thickness += float(t)
-
-        if pd.notna(d):
-            d = str(d).strip()
-            if not d:
-                continue
-            total_density += float(d)
-        thickness_term = total_thickness / 50.0   # normalize scale
-        density_term = total_density / 10.0        # normalize scale
-        energy_term = energy / 5.0
-
-        alpha = 2.0
-
-        exponent = -alpha * (thickness_term * density_term) / energy_term
-
-        raw = np.exp(exponent)
-        return 1 / (1 + np.exp(-5 * (raw - 0.5)))
-
-df_meta["TransmissionFraction"] = df_meta.apply(compute_transmission, axis=1)
 
 # ---------------------------
 # SAVE

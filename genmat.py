@@ -10,7 +10,7 @@ import os
 NUM_FILES = 1
 
 # Configurations per file
-CONFIGS_PER_FILE = 1
+CONFIGS_PER_FILE = 5
 
 # Maximum number of layers in a shield
 MAX_LAYERS = 5
@@ -20,13 +20,13 @@ MAX_MASS = 500
 
 # Thickness settings (mm)
 MIN_THICKNESS = 1.0
-MAX_THICKNESS = 20.0
+MAX_THICKNESS = 3.0
 THICKNESS_RESOLUTION = 0.5
 
 # Beam energy settings (keV)
-MIN_ENERGY = 0.5
-MAX_ENERGY = 5.0
-ENERGY_RESOLUTION = 0.5
+MIN_ENERGY = 100
+MAX_ENERGY = 10000
+ENERGY_RESOLUTION = 250
 
 # Number of events per simulation
 NUM_EVENTS = 10000
@@ -81,9 +81,6 @@ MATERIALS = {
     "G4_Ti": {
         "density": 4.50
     },
-    "G4_U": {
-        "density": 18.95
-    },
     "G4_W": {
         "density": 19.25
     }
@@ -106,7 +103,6 @@ PARTICLES = [
     "deuteron",
     "triton",
     "He3",
-    "GenericIon"
 ]
 
 # ============================================================

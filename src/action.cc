@@ -4,7 +4,7 @@
 #include "generator.hh"
 #include "run.hh"
 #include "RunMessenger.hh"
-#include "EventAction.hh"      // <-- ADD THIS
+#include "EventAction.hh"      
 
 ActionInitialization::ActionInitialization(DetectorConstruction* det)
 : fDetector(det)

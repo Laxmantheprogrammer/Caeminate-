@@ -23,6 +23,7 @@ SensitiveDetector::~SensitiveDetector()
 
 void SensitiveDetector::Initialize(G4HCofThisEvent *)
 {
+    fCountedTracks.clear();
 }
 
 void SensitiveDetector::EndOfEvent(G4HCofThisEvent *)
@@ -33,11 +34,17 @@ void SensitiveDetector::EndOfEvent(G4HCofThisEvent *)
 G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
 {
     G4Track *track = aStep->GetTrack();
+    if (track->GetParentID() == 0)
+    {
+        if (fCountedTracks.insert(track->GetTrackID()).second)
+        {
+            RunAction::GetInstance()->IncrementTransmittedParticles();
+        }
+    }
 
     G4String particleName =
         track->GetParticleDefinition()->GetParticleName();
     G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
-
     G4ThreeVector posPhoton = preStepPoint->GetPosition();
 
     const G4VTouchable *touchable = preStepPoint->GetTouchable();

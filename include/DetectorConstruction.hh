@@ -36,7 +36,7 @@ private:
     G4double fRadiatorZ;
 
     DetectorMessenger *fMessenger;
-    G4bool fCheckOverlaps = true;
+    G4bool fCheckOverlaps = false;
     G4double fShieldFrontFace;
 };
 

@@ -4,7 +4,7 @@
 #include "G4RunManager.hh"
 #include "G4Run.hh"
 #include "G4SystemOfUnits.hh"
-
+#include "run.hh"
 #include <iostream>
 #include <iomanip>
 
@@ -26,7 +26,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
 {
     int eventID = event->GetEventID();
     int totalEvents = G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEventToBeProcessed();
-
+    RunAction::GetInstance()->SetTotalEvents(totalEvents);
     const int barWidth = 40;
 
     double progress = double(eventID + 1) / totalEvents;

@@ -7,6 +7,7 @@
 #include "G4TouchableHistory.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
+#include <set>
 
 class SensitiveDetector : public G4VSensitiveDetector
 {
@@ -20,6 +21,7 @@ public:
 
 private:
     G4int fEventID;
+    std::set<G4int> fCountedTracks;
 };
 
 #endif

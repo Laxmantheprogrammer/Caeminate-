@@ -8,7 +8,8 @@
 #include "physics.hh"
 #include "action.hh"
 #include "SimulationConfig.hh"
-
+#include <fstream>
+#include <set>
 #include <iomanip>
 #include <iostream>
 
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
     // USER SETTINGS
     // ============================================================
 
-    const bool VISUALIZATION = true;
+    const bool VISUALIZATION = false;
 
     // ============================================================
     // RUN MANAGER
@@ -91,9 +92,27 @@ int main(int argc, char **argv)
 
     const std::size_t totalConfigs =
         SimulationConfig::Instance().ConfigCount();
+    std::set<std::size_t> completed;
+
+    std::ifstream progressFile("../completed.txt");
+
+    std::size_t done;
+
+    while (progressFile >> done)
+    {
+        completed.insert(done);
+    }
+
+    progressFile.close();
 
     for (std::size_t i = 0; i < totalConfigs; ++i)
     {
+        if (completed.count(i))
+        {
+            std::cout << "Skipping completed config "
+                      << i << std::endl;
+            continue;
+        }
         SimulationConfig::Instance().SetCurrentConfig(i);
 
         runManager->ReinitializeGeometry();
@@ -105,6 +124,11 @@ int main(int argc, char **argv)
             "../output/Output_" + std::to_string(i));
 
         runManager->BeamOn(nEvents);
+
+        // Mark this configuration as completed
+        std::ofstream progressFile("../completed.txt", std::ios::app);
+        progressFile << i << std::endl;
+        progressFile.close();
 
         PrintProgress(i + 1, totalConfigs);
         std::cout << std::endl;

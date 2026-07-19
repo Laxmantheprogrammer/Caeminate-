@@ -199,7 +199,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                 G4ThreeVector(
                     -0.5 * m + (i + 0.5) * m / 100,
                     -0.5 * m + (j + 0.5) * m / 100,
-                    0.40 * m),
+                    currentZ + 1 * mm),
                 logicDetector,
                 "Detector",
                 logicWorld,

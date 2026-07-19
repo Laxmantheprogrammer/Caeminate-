@@ -5,9 +5,11 @@
 #include "G4ios.hh"
 #include "SimulationConfig.hh"
 #include "G4RunManager.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4NistManager.hh"
 #include <sstream>
-RunAction* RunAction::fInstance = nullptr;
-RunAction* RunAction::GetInstance()
+RunAction *RunAction::fInstance = nullptr;
+RunAction *RunAction::GetInstance()
 {
     return fInstance;
 }
@@ -40,7 +42,7 @@ RunAction::RunAction()
     man->CreateNtupleDColumn("X_mm");
     man->CreateNtupleDColumn("Y_mm");
     man->CreateNtupleDColumn("Z_mm");
-    man->FinishNtuple(); 
+    man->FinishNtuple();
 
     // =====================
     // Metadata tree
@@ -92,9 +94,32 @@ void RunAction::AddEnergyDeposit(G4double edep)
 {
     fTotalEnergyDeposit += edep;
 }
+void RunAction::IncrementTransmittedParticles()
+{
+    G4cout << "Transmitted count = "
+           << fTransmittedParticles + 1
+           << G4endl;
+    ++fTransmittedParticles;
+}
+
+void RunAction::SetTotalEvents(G4int n)
+{
+    fTotalEvents = n;
+}
+
+G4int RunAction::GetTotalEvents() const
+{
+    return fTotalEvents;
+}
+
+G4int RunAction::GetTransmittedParticles() const
+{
+    return fTransmittedParticles;
+}
 void RunAction::BeginOfRunAction(const G4Run *)
 {
     fTotalEnergyDeposit = 0.0;
+    fTransmittedParticles = 0;
     auto *man = G4RootAnalysisManager::Instance();
 
     man->OpenFile();
@@ -107,10 +132,24 @@ void RunAction::BeginOfRunAction(const G4Run *)
 
     std::string layerStr, thickStr, densStr;
 
+    auto *nist = G4NistManager::Instance();
+
     for (size_t i = 0; i < layers.size(); i++)
     {
-        layerStr += layers[i]["material"].get<std::string>();
-        thickStr += std::to_string(layers[i]["thickness_mm"].get<double>());
+        std::string materialName =
+            layers[i]["material"].get<std::string>();
+
+        layerStr += materialName;
+
+        thickStr +=
+            std::to_string(
+                layers[i]["thickness_mm"].get<double>());
+
+        G4Material *mat =
+            nist->FindOrBuildMaterial(materialName);
+
+        densStr +=
+            std::to_string(mat->GetDensity() / (g / cm3));
 
         if (i != layers.size() - 1)
         {
@@ -135,6 +174,23 @@ void RunAction::BeginOfRunAction(const G4Run *)
 void RunAction::EndOfRunAction(const G4Run *)
 {
     auto *man = G4RootAnalysisManager::Instance();
+
+    G4double transmission = 0.0;
+
+    if (fTotalEvents > 0)
+    {
+        transmission =
+            static_cast<G4double>(fTransmittedParticles) /
+            static_cast<G4double>(fTotalEvents);
+    }
+
+    man->FillNtupleIColumn(2, 0, fRunID);
+    man->FillNtupleDColumn(2, 1, transmission);
+    man->FillNtupleDColumn(2, 2, 0.0); // SecondaryCount (placeholder)
+    man->FillNtupleDColumn(2, 3, fTotalEnergyDeposit);
+
+    man->AddNtupleRow(2);
+
     man->Write();
     man->CloseFile();
 }

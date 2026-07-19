@@ -21,19 +21,26 @@ public:
     void SetParticle(G4String p);
     void SetEnergy(G4double e);
     void SetSize(G4double x, G4double y, G4double z);
-    static RunAction* GetInstance();
-    static RunAction* fInstance;
+    static RunAction *GetInstance();
+    static RunAction *fInstance;
     void AddEnergyDeposit(G4double edep);
-private:
+    void IncrementTransmittedParticles();
+    G4int GetTransmittedParticles() const;
+    void SetTotalEvents(G4int n);
+    G4int GetTotalEvents() const;
+    
+    private:
     // simulation parameters
     G4String fMaterial;
     G4String fParticle;
     G4double fEnergy;
-
+    
     G4double fX, fY, fZ;
     G4int fRunID;
     RunMessenger *fMessenger;
     G4double fTotalEnergyDeposit = 0.0;
+    G4int fTransmittedParticles = 0;
+    G4int fTotalEvents = 0;
 };
 
 #endif
