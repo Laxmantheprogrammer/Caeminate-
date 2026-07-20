@@ -120,7 +120,12 @@ void RunAction::BeginOfRunAction(const G4Run *)
 {
     fTotalEnergyDeposit = 0.0;
     fTransmittedParticles = 0;
-    auto *man = G4RootAnalysisManager::Instance();
+    auto* man = G4RootAnalysisManager::Instance();
+
+    if (man->GetFileName().empty())
+    {
+        man->SetFileName("ManualRun");
+    }
 
     man->OpenFile();
 

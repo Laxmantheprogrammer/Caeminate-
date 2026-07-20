@@ -10,7 +10,7 @@ import os
 NUM_FILES = 1
 
 # Configurations per file
-CONFIGS_PER_FILE = 5
+CONFIGS_PER_FILE = 1
 
 # Maximum number of layers in a shield
 MAX_LAYERS = 5
@@ -222,8 +222,7 @@ for file_num in range(NUM_FILES):
 
     config_path = os.path.join(
         build_dir,
-        # f"config_{file_num}.json" #COME HERE BRUH COME HERE
-        f"config.json"
+        f"config_{file_num}.json" #COME HERE BRUH COME HERE
     )
 
     with open(config_path, "w") as f:

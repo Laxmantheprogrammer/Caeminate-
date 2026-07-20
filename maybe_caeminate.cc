@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     // USER SETTINGS
     // ============================================================
 
-    const bool VISUALIZATION = false;
+    const bool VISUALIZATION = true;
 
     // ============================================================
     // RUN MANAGER
